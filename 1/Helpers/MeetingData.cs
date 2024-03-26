@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using _1.Helpers;
+using System.ComponentModel;
 
 namespace _1.Helpers
 {
@@ -10,16 +11,20 @@ namespace _1.Helpers
 
         public string DateFrom { get; set; } = null!;
 
-        public string? DateVisit;
+        public string? DateVisit { get; set; }
 
-        private string? Time;
+        public string? Time { get; set; }
 
-        private string Status = null!;
+        public Status Status { get; set; } = null!;
+
+        public string? DeniedReason { get; set; }
 
         public string VisitPurpose { get; set; } = null!;
 
-        public string Department { get; set; } = null!;
+        public _Department Department { get; set; } = null!;
 
         public string FullNameEmployee { get; set; } = null!;
+
+        public _MeetingType MeetingType { get; set; } = null!;
     }
 }

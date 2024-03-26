@@ -4,7 +4,7 @@ namespace _1.Helpers
 {
     public class AllRequestInfo
     {
-        public GuestData guest { get; set; } = null!;
-        public MeetingData meeting { get; set; } = null!;
+        public GuestData Guest { get; set; } = null!;
+        public MeetingData Meeting { get; set; } = null!;
     }
 }

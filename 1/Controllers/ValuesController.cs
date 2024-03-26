@@ -258,7 +258,7 @@ namespace _1.Controllers
         //}   
 
         [HttpGet]
-        public async Task<List<Department>> GetDepartments()
+        public async Task<List<_1.Models.Department>> GetDepartments()
         {
             return await _dbContext.Departments.ToListAsync();
         }
