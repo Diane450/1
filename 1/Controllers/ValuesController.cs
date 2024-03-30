@@ -64,49 +64,49 @@ namespace _1.Controllers
             return 0;
         }
         //инф-ция о прошлых заявках пользователя
-        [HttpPost]
-        public async Task<IEnumerable<MeetingInfo>> GetPreviousRequests([FromBody] int id)
-        {
-            var meetingInfo = await (from privateMeetingGuests in _dbContext.PrivateMeetingsGuests
-                                     join guests in _dbContext.Guests on privateMeetingGuests.GuestId equals guests.IdGuests
-                                     join privateMeeting in _dbContext.PrivateMeetings on privateMeetingGuests.PrivateMeetingId equals privateMeeting.Id
-                                     join reason in _dbContext.DeniedReasons on privateMeeting.DeniedReasonId equals reason.Id
-                                     into deniedReasonsGroup
-                                     from deniedReason in deniedReasonsGroup.DefaultIfEmpty()
-                                     join department in _dbContext.Departments on privateMeeting.DepartmentId equals department.Id
-                                     join status in _dbContext.MeetingStatuses on privateMeeting.StatusId equals status.IdStatus
-                                     join user in _dbContext.Users on guests.UserId equals user.IdUser
-                                     where user.IdUser == id
-                                     select new MeetingInfo
-                                     {
-                                         Department = department.DepartmentName,
-                                         Time = privateMeeting.Time,
-                                         DateVisit = privateMeeting.DateVisit,
-                                         TypeMeeting = "Личное посещение",
-                                         Status = status.StatusName,
-                                         Reason = deniedReason.Descryption
-                                     }).Union
-                               (from guestsGroupMeetings in _dbContext.GroupMeetingsGuests
-                                join guests in _dbContext.Guests on guestsGroupMeetings.GuestId equals guests.IdGuests
-                                join groupMeeting in _dbContext.GroupMeetings on guestsGroupMeetings.GroupMeetingId equals groupMeeting.GroupMeetingId
-                                join reason in _dbContext.DeniedReasons on groupMeeting.DeniedReasonId equals reason.Id
-                                into deniedReasonsGroup
-                                from deniedReason in deniedReasonsGroup.DefaultIfEmpty()
-                                join department in _dbContext.Departments on groupMeeting.DeprtmentId equals department.Id
-                                join status in _dbContext.MeetingStatuses on groupMeeting.StatusId equals status.IdStatus
-                                join user in _dbContext.Users on guests.UserId equals user.IdUser
-                                where user.IdUser == id
-                                select new MeetingInfo
-                                {
-                                    Department = department.DepartmentName,
-                                    Time = groupMeeting.Time,
-                                    DateVisit = groupMeeting.DateVisit,
-                                    TypeMeeting = "Групповое посещение",
-                                    Status = status.StatusName,
-                                    Reason = deniedReason.Descryption
-                                }).ToListAsync();
-            return meetingInfo;
-        }
+        //[HttpPost]
+        //public async Task<IEnumerable<MeetingInfo>> GetPreviousRequests([FromBody] int id)
+        //{
+        //    var meetingInfo = await (from privateMeetingGuests in _dbContext.PrivateMeetingsGuests
+        //                             join guests in _dbContext.Guests on privateMeetingGuests.GuestId equals guests.IdGuests
+        //                             join privateMeeting in _dbContext.PrivateMeetings on privateMeetingGuests.PrivateMeetingId equals privateMeeting.Id
+        //                             join reason in _dbContext.DeniedReasons on privateMeeting.DeniedReasonId equals reason.Id
+        //                             into deniedReasonsGroup
+        //                             from deniedReason in deniedReasonsGroup.DefaultIfEmpty()
+        //                             join department in _dbContext.Departments on privateMeeting.DepartmentId equals department.Id
+        //                             join status in _dbContext.MeetingStatuses on privateMeeting.StatusId equals status.IdStatus
+        //                             join user in _dbContext.Users on guests.UserId equals user.IdUser
+        //                             where user.IdUser == id
+        //                             select new MeetingInfo
+        //                             {
+        //                                 Department = department.DepartmentName,
+        //                                 Time = privateMeeting.Time,
+        //                                 DateVisit = privateMeeting.DateVisit,
+        //                                 TypeMeeting = "Личное посещение",
+        //                                 Status = status.StatusName,
+        //                                 Reason = deniedReason.Descryption
+        //                             }).Union
+        //                       (from guestsGroupMeetings in _dbContext.GroupMeetingsGuests
+        //                        join guests in _dbContext.Guests on guestsGroupMeetings.GuestId equals guests.IdGuests
+        //                        join groupMeeting in _dbContext.GroupMeetings on guestsGroupMeetings.GroupMeetingId equals groupMeeting.GroupMeetingId
+        //                        join reason in _dbContext.DeniedReasons on groupMeeting.DeniedReasonId equals reason.Id
+        //                        into deniedReasonsGroup
+        //                        from deniedReason in deniedReasonsGroup.DefaultIfEmpty()
+        //                        join department in _dbContext.Departments on groupMeeting.DeprtmentId equals department.Id
+        //                        join status in _dbContext.MeetingStatuses on groupMeeting.StatusId equals status.IdStatus
+        //                        join user in _dbContext.Users on guests.UserId equals user.IdUser
+        //                        where user.IdUser == id
+        //                        select new MeetingInfo
+        //                        {
+        //                            Department = department.DepartmentName,
+        //                            Time = groupMeeting.Time,
+        //                            DateVisit = groupMeeting.DateVisit,
+        //                            TypeMeeting = "Групповое посещение",
+        //                            Status = status.StatusName,
+        //                            Reason = deniedReason.Descryption
+        //                        }).ToListAsync();
+        //    return meetingInfo;
+        //}
 
         //создание private meeting пользователем
         [HttpPost]

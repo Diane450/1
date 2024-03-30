@@ -11,7 +11,7 @@ public partial class DeniedReason
 
     public string Descryption { get; set; } = null!;
 
-    public virtual ICollection<GroupMeeting> GroupMeetings { get; set; } = new List<GroupMeeting>();
+    public virtual ICollection<GroupDeniedRequest> GroupDeniedRequests { get; set; } = new List<GroupDeniedRequest>();
 
-    public virtual ICollection<PrivateMeeting> PrivateMeetings { get; set; } = new List<PrivateMeeting>();
+    public virtual ICollection<PrivateDeniedRequest> PrivateDeniedRequests { get; set; } = new List<PrivateDeniedRequest>();
 }

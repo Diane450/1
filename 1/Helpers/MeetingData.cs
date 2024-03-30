@@ -7,17 +7,15 @@ namespace _1.Helpers
     {
         public int Id { get; set; }
 
-        public string DateTo { get; set; } = null!;
+        public DateOnly DateTo { get; set; }
 
-        public string DateFrom { get; set; } = null!;
+        public DateOnly DateFrom { get; set; }
 
-        public string? DateVisit { get; set; }
+        public DateOnly? DateVisit { get; set; }
 
-        public string? Time { get; set; }
+        public TimeOnly? Time { get; set; }
 
         public Status Status { get; set; } = null!;
-
-        public string? DeniedReason { get; set; }
 
         public string VisitPurpose { get; set; } = null!;
 

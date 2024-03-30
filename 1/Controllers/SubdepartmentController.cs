@@ -4,6 +4,7 @@ using _1.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace _1.Controllers
 {
@@ -47,9 +48,6 @@ namespace _1.Controllers
             List<AllRequestInfo> privateRequests = await (from privateMeetingGuests in _dbContext.PrivateMeetingsGuests
                                                           join guest in _dbContext.Guests on privateMeetingGuests.GuestId equals guest.IdGuests
                                                           join privateMeeting in _dbContext.PrivateMeetings on privateMeetingGuests.PrivateMeetingId equals privateMeeting.Id
-                                                          join deniedReasons in _dbContext.DeniedReasons on privateMeeting.DeniedReasonId equals deniedReasons.Id
-                                                          into deniedReasonsGroup
-                                                          from deniedReason in deniedReasonsGroup.DefaultIfEmpty()
                                                           join department in _dbContext.Departments on privateMeeting.DepartmentId equals department.Id
                                                           join employee in _dbContext.Employees on privateMeeting.EmployeeId equals employee.IdEmployees
                                                           join status in _dbContext.MeetingStatuses on privateMeeting.StatusId equals status.IdStatus
@@ -75,16 +73,15 @@ namespace _1.Controllers
                                                               Meeting = new MeetingData()
                                                               {
                                                                   Id = privateMeeting.Id,
-                                                                  DateTo = privateMeeting.DateTo.ToString(),
-                                                                  DateFrom = privateMeeting.DateFrom.ToString(),
-                                                                  DateVisit = privateMeeting.DateVisit.ToString(),
-                                                                  Time = privateMeeting.Time.ToString(),
+                                                                  DateTo = privateMeeting.DateTo,
+                                                                  DateFrom = privateMeeting.DateFrom,
+                                                                  DateVisit = privateMeeting.DateVisit,
+                                                                  Time = privateMeeting.Time,
                                                                   Status = new Status
                                                                   {
                                                                       Id = status.IdStatus,
                                                                       Name = status.StatusName
                                                                   },
-                                                                  DeniedReason = deniedReason.ShortName,
                                                                   VisitPurpose = purpose.Name,
                                                                   Department = new _Department
                                                                   {
@@ -112,9 +109,6 @@ namespace _1.Controllers
             List<AllRequestInfo> groupRequests = await (from groupMeetingGuests in _dbContext.GroupMeetingsGuests
                                                         join guest in _dbContext.Guests on groupMeetingGuests.GuestId equals guest.IdGuests
                                                         join groupMeeting in _dbContext.GroupMeetings on groupMeetingGuests.GroupMeetingId equals groupMeeting.GroupMeetingId
-                                                        join deniedReasons in _dbContext.DeniedReasons on groupMeeting.DeniedReasonId equals deniedReasons.Id
-                                                        into deniedReasonsGroup
-                                                        from deniedReason in deniedReasonsGroup.DefaultIfEmpty()
                                                         join department in _dbContext.Departments on groupMeeting.DeprtmentId equals department.Id
                                                         join employee in _dbContext.Employees on groupMeeting.EmployeeId equals employee.IdEmployees
                                                         join status in _dbContext.MeetingStatuses on groupMeeting.StatusId equals status.IdStatus
@@ -140,16 +134,15 @@ namespace _1.Controllers
                                                             Meeting = new MeetingData()
                                                             {
                                                                 Id = groupMeeting.GroupMeetingId,
-                                                                DateTo = groupMeeting.DateTo.ToString(),
-                                                                DateFrom = groupMeeting.DateFrom.ToString(),
-                                                                DateVisit = groupMeeting.DateVisit.ToString(),
-                                                                Time = groupMeeting.Time.ToString(),
+                                                                DateTo = groupMeeting.DateTo,
+                                                                DateFrom = groupMeeting.DateFrom,
+                                                                DateVisit = groupMeeting.DateVisit,
+                                                                Time = groupMeeting.Time,
                                                                 Status = new Status
                                                                 {
                                                                     Id = status.IdStatus,
                                                                     Name = status.StatusName
                                                                 },
-                                                                DeniedReason = deniedReason.ShortName,
                                                                 VisitPurpose = purpose.Name,
                                                                 Department = new _Department
                                                                 {
@@ -175,11 +168,11 @@ namespace _1.Controllers
         public async Task<List<_Department>> GetDepartmentsAsync()
         {
             return (await (from d in _dbContext.Departments
-                                        select new _Department
-                                        {
-                                            Id = d.Id,
-                                            Name = d.DepartmentName
-                                        }).ToListAsync());
+                           select new _Department
+                           {
+                               Id = d.Id,
+                               Name = d.DepartmentName
+                           }).ToListAsync());
         }
 
         /// <summary>
@@ -190,11 +183,11 @@ namespace _1.Controllers
         public async Task<List<Status>> GetStatusesAsync()
         {
             return (await (from s in _dbContext.MeetingStatuses
-                                     select new Status
-                                     {
-                                         Id = s.IdStatus,
-                                         Name = s.StatusName
-                                     }).ToListAsync());
+                           select new Status
+                           {
+                               Id = s.IdStatus,
+                               Name = s.StatusName
+                           }).ToListAsync());
         }
 
         /// <summary>
@@ -222,6 +215,58 @@ namespace _1.Controllers
                     Name = "Групповое посещение"
                 }
             };
+        }
+
+
+        /// <summary>
+        /// Возвращает список причин отказа заявки
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<List<_DeniedReason>> GetDeniedReasons()
+        {
+            return await (from d in _dbContext.DeniedReasons
+                           select new _DeniedReason
+                           {
+                               Id = d.Id,
+                               ShortName = d.ShortName
+                           }).ToListAsync();
+        }
+
+        /// <summary>
+        /// Возваращает причину отказа личной заявки
+        /// </summary>
+        /// <param name="requestId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<_DeniedReason> GetPrivateRequestDeniedReason([FromBody] int requestId)
+        {
+            return await (from privateDeniedRequest in _dbContext.PrivateDeniedRequests
+                          join deniedReason in _dbContext.DeniedReasons on privateDeniedRequest.DeniedReasonId equals deniedReason.Id
+                          where privateDeniedRequest.PrivateRequestId == requestId
+                          select new _DeniedReason
+                          {
+                              Id = deniedReason.Id,
+                              ShortName = deniedReason.ShortName
+                          }).FirstAsync();
+        }
+
+        /// <summary>
+        /// Возвращает причину отказа групповой заявки
+        /// </summary>
+        /// <param name="requestId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<_DeniedReason> GetGroupRequestDeniedReason([FromBody] int requestId)
+        {
+            return await (from groupDeniedRequest in _dbContext.GroupDeniedRequests
+                          join deniedReason in _dbContext.DeniedReasons on groupDeniedRequest.DeniedReasonId equals deniedReason.Id
+                          where groupDeniedRequest.GroupRequestId == requestId
+                          select new _DeniedReason
+                          {
+                              Id = deniedReason.Id,
+                              ShortName = deniedReason.ShortName
+                          }).FirstAsync();
         }
     }
 }

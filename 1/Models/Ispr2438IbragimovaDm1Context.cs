@@ -25,6 +25,8 @@ public partial class Ispr2438IbragimovaDm1Context : DbContext
 
     public virtual DbSet<Group> Groups { get; set; }
 
+    public virtual DbSet<GroupDeniedRequest> GroupDeniedRequests { get; set; }
+
     public virtual DbSet<GroupMeeting> GroupMeetings { get; set; }
 
     public virtual DbSet<GroupMeetingsGuest> GroupMeetingsGuests { get; set; }
@@ -34,6 +36,8 @@ public partial class Ispr2438IbragimovaDm1Context : DbContext
     public virtual DbSet<Guest> Guests { get; set; }
 
     public virtual DbSet<MeetingStatus> MeetingStatuses { get; set; }
+
+    public virtual DbSet<PrivateDeniedRequest> PrivateDeniedRequests { get; set; }
 
     public virtual DbSet<PrivateMeeting> PrivateMeetings { get; set; }
 
@@ -116,6 +120,25 @@ public partial class Ispr2438IbragimovaDm1Context : DbContext
             entity.Property(e => e.Name).HasMaxLength(255);
         });
 
+        modelBuilder.Entity<GroupDeniedRequest>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.HasIndex(e => e.DeniedReasonId, "FK_GDRDeniedReason_idx");
+
+            entity.HasIndex(e => e.GroupRequestId, "FK_GDRPrivateRequest_idx");
+
+            entity.HasOne(d => d.DeniedReason).WithMany(p => p.GroupDeniedRequests)
+                .HasForeignKey(d => d.DeniedReasonId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_GDRDeniedReason");
+
+            entity.HasOne(d => d.GroupRequest).WithMany(p => p.GroupDeniedRequests)
+                .HasForeignKey(d => d.GroupRequestId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_GDRPrivateRequest");
+        });
+
         modelBuilder.Entity<GroupMeeting>(entity =>
         {
             entity.HasKey(e => e.GroupMeetingId).HasName("PRIMARY");
@@ -124,8 +147,6 @@ public partial class Ispr2438IbragimovaDm1Context : DbContext
 
             entity.HasIndex(e => e.DeprtmentId, "FK_DepartentGM_idx");
 
-            entity.HasIndex(e => e.DeniedReasonId, "FK_GMDeniedReason_idx");
-
             entity.HasIndex(e => e.EmployeeId, "FK_GMEmployee_idx");
 
             entity.HasIndex(e => e.GroupId, "FK_GMGroup_idx");
@@ -133,10 +154,6 @@ public partial class Ispr2438IbragimovaDm1Context : DbContext
             entity.HasIndex(e => e.StatusId, "FK_GroupStatus_idx");
 
             entity.Property(e => e.Time).HasColumnType("time");
-
-            entity.HasOne(d => d.DeniedReason).WithMany(p => p.GroupMeetings)
-                .HasForeignKey(d => d.DeniedReasonId)
-                .HasConstraintName("FK_GMDeniedReason");
 
             entity.HasOne(d => d.Deprtment).WithMany(p => p.GroupMeetings)
                 .HasForeignKey(d => d.DeprtmentId)
@@ -232,13 +249,30 @@ public partial class Ispr2438IbragimovaDm1Context : DbContext
             entity.Property(e => e.StatusName).HasMaxLength(45);
         });
 
+        modelBuilder.Entity<PrivateDeniedRequest>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.HasIndex(e => e.DeniedReasonId, "FK_PDRDeniedReason_idx");
+
+            entity.HasIndex(e => e.PrivateRequestId, "FK_PDRPrivateRequest_idx");
+
+            entity.HasOne(d => d.DeniedReason).WithMany(p => p.PrivateDeniedRequests)
+                .HasForeignKey(d => d.DeniedReasonId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PDRDeniedReason");
+
+            entity.HasOne(d => d.PrivateRequest).WithMany(p => p.PrivateDeniedRequests)
+                .HasForeignKey(d => d.PrivateRequestId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PDRPrivateRequest");
+        });
+
         modelBuilder.Entity<PrivateMeeting>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
             entity.ToTable("PrivateMeeting");
-
-            entity.HasIndex(e => e.DeniedReasonId, "FK_DeniedReasonId_idx");
 
             entity.HasIndex(e => e.DepartmentId, "FK_PMDeprtment_idx");
 
@@ -249,10 +283,6 @@ public partial class Ispr2438IbragimovaDm1Context : DbContext
             entity.HasIndex(e => e.VisitPurposeId, "FK_VisitPurposeId_idx");
 
             entity.Property(e => e.Time).HasColumnType("time");
-
-            entity.HasOne(d => d.DeniedReason).WithMany(p => p.PrivateMeetings)
-                .HasForeignKey(d => d.DeniedReasonId)
-                .HasConstraintName("FK_DeniedReasonId");
 
             entity.HasOne(d => d.Department).WithMany(p => p.PrivateMeetings)
                 .HasForeignKey(d => d.DepartmentId)

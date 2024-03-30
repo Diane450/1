@@ -23,13 +23,11 @@ public partial class PrivateMeeting
 
     public int StatusId { get; set; }
 
-    public int? DeniedReasonId { get; set; }
-
-    public virtual DeniedReason? DeniedReason { get; set; }
-
     public virtual Department Department { get; set; } = null!;
 
     public virtual Employee Employee { get; set; } = null!;
+
+    public virtual ICollection<PrivateDeniedRequest> PrivateDeniedRequests { get; set; } = new List<PrivateDeniedRequest>();
 
     public virtual ICollection<PrivateMeetingsGuest> PrivateMeetingsGuests { get; set; } = new List<PrivateMeetingsGuest>();
 

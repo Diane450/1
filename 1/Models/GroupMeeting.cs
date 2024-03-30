@@ -23,17 +23,15 @@ public partial class GroupMeeting
 
     public int StatusId { get; set; }
 
-    public int? DeniedReasonId { get; set; }
-
     public int VisitPurposeId { get; set; }
-
-    public virtual DeniedReason? DeniedReason { get; set; }
 
     public virtual Department Deprtment { get; set; } = null!;
 
     public virtual Employee Employee { get; set; } = null!;
 
     public virtual Group Group { get; set; } = null!;
+
+    public virtual ICollection<GroupDeniedRequest> GroupDeniedRequests { get; set; } = new List<GroupDeniedRequest>();
 
     public virtual ICollection<GroupMeetingsGuest> GroupMeetingsGuests { get; set; } = new List<GroupMeetingsGuest>();
 
