@@ -226,11 +226,11 @@ namespace _1.Controllers
         public async Task<List<_DeniedReason>> GetDeniedReasons()
         {
             return await (from d in _dbContext.DeniedReasons
-                           select new _DeniedReason
-                           {
-                               Id = d.Id,
-                               ShortName = d.ShortName
-                           }).ToListAsync();
+                          select new _DeniedReason
+                          {
+                              Id = d.Id,
+                              ShortName = d.ShortName
+                          }).ToListAsync();
         }
 
         /// <summary>
@@ -267,6 +267,25 @@ namespace _1.Controllers
                               Id = deniedReason.Id,
                               ShortName = deniedReason.ShortName
                           }).FirstAsync();
+        }
+
+        [HttpPost]
+        public async Task<bool> IsGuestBlackListed([FromBody] int id)
+        {
+            return await _dbContext.BlackListGuests.Where(g => g.GuestId == id).FirstOrDefaultAsync() != null;
+        }
+
+        [HttpPost]
+        public async Task DenyPrivateRequestAsync([FromBody] _PrivateDeniedRequest request)
+        {
+            PrivateMeeting meeting = await _dbContext.PrivateMeetings.Where(r => r.Id == request.PrivateRequestId).FirstAsync();
+            meeting.StatusId = 3;
+            await _dbContext.PrivateDeniedRequests.AddAsync(new PrivateDeniedRequest
+            {
+                PrivateRequestId = request.PrivateRequestId,
+                DeniedReasonId = request.DeniedReasonId
+            });
+            await _dbContext.SaveChangesAsync();
         }
     }
 }
