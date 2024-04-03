@@ -11,10 +11,6 @@ namespace _1.Helpers
 
         public DateOnly DateFrom { get; set; }
 
-        public DateOnly? DateVisit { get; set; }
-
-        public TimeOnly? Time { get; set; }
-
         public Status Status { get; set; } = null!;
 
         public string VisitPurpose { get; set; } = null!;

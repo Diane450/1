@@ -15,7 +15,15 @@ public partial class Ispr2438IbragimovaDm1Context : DbContext
     {
     }
 
+    public virtual DbSet<AcceptedGroupRequest> AcceptedGroupRequests { get; set; }
+
+    public virtual DbSet<AcceptedPrivateRequest> AcceptedPrivateRequests { get; set; }
+
     public virtual DbSet<BlackListGuest> BlackListGuests { get; set; }
+
+    public virtual DbSet<CheckGroupRequest> CheckGroupRequests { get; set; }
+
+    public virtual DbSet<CheckPrivateRequest> CheckPrivateRequests { get; set; }
 
     public virtual DbSet<DeniedReason> DeniedReasons { get; set; }
 
@@ -61,6 +69,38 @@ public partial class Ispr2438IbragimovaDm1Context : DbContext
             .UseCollation("utf8mb4_0900_ai_ci")
             .HasCharSet("utf8mb4");
 
+        modelBuilder.Entity<AcceptedGroupRequest>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("AcceptedGroupRequest");
+
+            entity.HasIndex(e => e.GroupRequestId, "FK_AGR_GroupRequestId_idx");
+
+            entity.Property(e => e.Time).HasColumnType("time");
+
+            entity.HasOne(d => d.GroupRequest).WithMany(p => p.AcceptedGroupRequests)
+                .HasForeignKey(d => d.GroupRequestId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AGR_GroupRequestId");
+        });
+
+        modelBuilder.Entity<AcceptedPrivateRequest>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("AcceptedPrivateRequest");
+
+            entity.HasIndex(e => e.PrivateRequestId, "FK_APR_PrivateRequestId_idx");
+
+            entity.Property(e => e.Time).HasColumnType("time");
+
+            entity.HasOne(d => d.PrivateRequest).WithMany(p => p.AcceptedPrivateRequests)
+                .HasForeignKey(d => d.PrivateRequestId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_APR_PrivateRequestId");
+        });
+
         modelBuilder.Entity<BlackListGuest>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
@@ -73,6 +113,34 @@ public partial class Ispr2438IbragimovaDm1Context : DbContext
                 .HasForeignKey(d => d.GuestId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_BlackListGuests_GuestId");
+        });
+
+        modelBuilder.Entity<CheckGroupRequest>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("CheckGroupRequest");
+
+            entity.HasIndex(e => e.GroupRequestId, "FK_GPR_GroupRequestId_idx");
+
+            entity.HasOne(d => d.GroupRequest).WithMany(p => p.CheckGroupRequests)
+                .HasForeignKey(d => d.GroupRequestId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_GPR_GroupRequestId");
+        });
+
+        modelBuilder.Entity<CheckPrivateRequest>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("CheckPrivateRequest");
+
+            entity.HasIndex(e => e.PrivateRequestId, "FK_CPR_PrivateRequestId_idx");
+
+            entity.HasOne(d => d.PrivateRequest).WithMany(p => p.CheckPrivateRequests)
+                .HasForeignKey(d => d.PrivateRequestId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CPR_PrivateRequestId");
         });
 
         modelBuilder.Entity<DeniedReason>(entity =>
@@ -152,8 +220,6 @@ public partial class Ispr2438IbragimovaDm1Context : DbContext
             entity.HasIndex(e => e.GroupId, "FK_GMGroup_idx");
 
             entity.HasIndex(e => e.StatusId, "FK_GroupStatus_idx");
-
-            entity.Property(e => e.Time).HasColumnType("time");
 
             entity.HasOne(d => d.Deprtment).WithMany(p => p.GroupMeetings)
                 .HasForeignKey(d => d.DeprtmentId)
@@ -281,8 +347,6 @@ public partial class Ispr2438IbragimovaDm1Context : DbContext
             entity.HasIndex(e => e.StatusId, "FK_PrivateMeetingStatus_idx");
 
             entity.HasIndex(e => e.VisitPurposeId, "FK_VisitPurposeId_idx");
-
-            entity.Property(e => e.Time).HasColumnType("time");
 
             entity.HasOne(d => d.Department).WithMany(p => p.PrivateMeetings)
                 .HasForeignKey(d => d.DepartmentId)

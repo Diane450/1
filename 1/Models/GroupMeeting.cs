@@ -11,10 +11,6 @@ public partial class GroupMeeting
 
     public DateOnly DateTo { get; set; }
 
-    public DateOnly? DateVisit { get; set; }
-
-    public TimeOnly? Time { get; set; }
-
     public int DeprtmentId { get; set; }
 
     public int EmployeeId { get; set; }
@@ -24,6 +20,10 @@ public partial class GroupMeeting
     public int StatusId { get; set; }
 
     public int VisitPurposeId { get; set; }
+
+    public virtual ICollection<AcceptedGroupRequest> AcceptedGroupRequests { get; set; } = new List<AcceptedGroupRequest>();
+
+    public virtual ICollection<CheckGroupRequest> CheckGroupRequests { get; set; } = new List<CheckGroupRequest>();
 
     public virtual Department Deprtment { get; set; } = null!;
 

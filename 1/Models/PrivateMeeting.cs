@@ -11,10 +11,6 @@ public partial class PrivateMeeting
 
     public DateOnly DateTo { get; set; }
 
-    public DateOnly? DateVisit { get; set; }
-
-    public TimeOnly? Time { get; set; }
-
     public int DepartmentId { get; set; }
 
     public int EmployeeId { get; set; }
@@ -22,6 +18,10 @@ public partial class PrivateMeeting
     public int VisitPurposeId { get; set; }
 
     public int StatusId { get; set; }
+
+    public virtual ICollection<AcceptedPrivateRequest> AcceptedPrivateRequests { get; set; } = new List<AcceptedPrivateRequest>();
+
+    public virtual ICollection<CheckPrivateRequest> CheckPrivateRequests { get; set; } = new List<CheckPrivateRequest>();
 
     public virtual Department Department { get; set; } = null!;
 
