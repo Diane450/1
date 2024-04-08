@@ -44,112 +44,59 @@ namespace _1.Controllers
         [HttpGet]
         public async Task<List<AllRequestInfo>> GetPrivateRequests()
         {
-            Stopwatch sw = Stopwatch.StartNew();
-            //List<AllRequestInfo> privateRequests = await (from privateMeetingGuests in _dbContext.PrivateMeetingsGuests
-            //                                              join guest in _dbContext.Guests on privateMeetingGuests.GuestId equals guest.IdGuests
-            //                                              join privateMeeting in _dbContext.PrivateMeetings on privateMeetingGuests.PrivateMeetingId equals privateMeeting.Id
-            //                                              join department in _dbContext.Departments on privateMeeting.DepartmentId equals department.Id
-            //                                              join employee in _dbContext.Employees on privateMeeting.EmployeeId equals employee.IdEmployees
-            //                                              join status in _dbContext.MeetingStatuses on privateMeeting.StatusId equals status.IdStatus
-            //                                              join purpose in _dbContext.VisitPurposes on privateMeeting.VisitPurposeId equals purpose.IdVisitPurpose
-            //                                              select new AllRequestInfo()
-            //                                              {
-            //                                                  Guest = new GuestData
-            //                                                  {
-            //                                                      Id = privateMeetingGuests.GuestId,
-            //                                                      LastName = guest.LastName,
-            //                                                      Name = guest.Name,
-            //                                                      Patronymic = guest.Patronymic,
-            //                                                      Phone = guest.Phone,
-            //                                                      Email = guest.Email,
-            //                                                      Organization = guest.Organization,
-            //                                                      Note = guest.Note,
-            //                                                      Birthday = guest.Birthday.ToString(),
-            //                                                      PassportSeries = guest.PassportSeries,
-            //                                                      PassportNumber = guest.PassportNumber,
-            //                                                      AvatarBytes = guest.Avatar,
-            //                                                      PassportBytes = guest.Passport
-            //                                                  },
-            //                                                  Meeting = new MeetingData()
-            //                                                  {
-            //                                                      Id = privateMeeting.Id,
-            //                                                      DateTo = privateMeeting.DateTo,
-            //                                                      DateFrom = privateMeeting.DateFrom,
-            //                                                      Status = new Status
-            //                                                      {
-            //                                                          Id = status.IdStatus,
-            //                                                          Name = status.StatusName
-            //                                                      },
-            //                                                      VisitPurpose = purpose.Name,
-            //                                                      Department = new _Department
-            //                                                      {
-            //                                                          Id = department.Id,
-            //                                                          Name = department.DepartmentName
-            //                                                      },
-            //                                                      FullNameEmployee = employee.FullName,
-            //                                                      MeetingType = new _MeetingType
-            //                                                      {
-            //                                                          Id = 1,
-            //                                                          Name = "Личное посещение"
-            //                                                      }
-            //                                                  }
-            //                                              }).ToListAsync();
             List<AllRequestInfo> privateRequests = await _dbContext.PrivateMeetingsGuests
-    .Include(pmg => pmg.Guest)
-    .Include(pmg => pmg.PrivateMeeting)
-        .ThenInclude(pm => pm.Status)
-    .Include(pmg => pmg.PrivateMeeting)
-        .ThenInclude(pm => pm.VisitPurpose)
-    .Include(pmg => pmg.PrivateMeeting)
-        .ThenInclude(pm => pm.Department)
-    .Include(pmg => pmg.PrivateMeeting)
-        .ThenInclude(pm => pm.Employee)
-    .Select(pmg => new AllRequestInfo()
-    {
-        Guest = new GuestData
-        {
-            Id = pmg.GuestId,
-            LastName = pmg.Guest.LastName,
-            Name = pmg.Guest.Name,
-            Patronymic = pmg.Guest.Patronymic,
-            Phone = pmg.Guest.Phone,
-            Email = pmg.Guest.Email,
-            Organization = pmg.Guest.Organization,
-            Note = pmg.Guest.Note,
-            Birthday = pmg.Guest.Birthday.ToString(),
-            PassportSeries = pmg.Guest.PassportSeries,
-            PassportNumber = pmg.Guest.PassportNumber,
-            AvatarBytes = pmg.Guest.Avatar,
-            PassportBytes = pmg.Guest.Passport
-        },
-        Meeting = new MeetingData()
-        {
-            Id = pmg.PrivateMeeting.Id,
-            DateTo = pmg.PrivateMeeting.DateTo,
-            DateFrom = pmg.PrivateMeeting.DateFrom,
-            Status = new Status
+            .Include(pmg => pmg.Guest)
+            .Include(pmg => pmg.PrivateMeeting)
+                .ThenInclude(pm => pm.Status)
+            .Include(pmg => pmg.PrivateMeeting)
+                .ThenInclude(pm => pm.VisitPurpose)
+            .Include(pmg => pmg.PrivateMeeting)
+                .ThenInclude(pm => pm.Department)
+            .Include(pmg => pmg.PrivateMeeting)
+                .ThenInclude(pm => pm.Employee)
+            .Select(pmg => new AllRequestInfo()
             {
-                Id = pmg.PrivateMeeting.Status.IdStatus,
-                Name = pmg.PrivateMeeting.Status.StatusName
-            },
-            VisitPurpose = pmg.PrivateMeeting.VisitPurpose.Name,
-            Department = new _Department
-            {
-                Id = pmg.PrivateMeeting.Department.Id,
-                Name = pmg.PrivateMeeting.Department.DepartmentName
-            },
-            FullNameEmployee = pmg.PrivateMeeting.Employee.FullName,
-            MeetingType = new _MeetingType
-            {
-                Id = 1,
-                Name = "Личное посещение"
-            }
-        }
-    })
-    .ToListAsync();
-
-
-            sw.Stop();
+                Guest = new GuestData
+                {
+                    Id = pmg.GuestId,
+                    LastName = pmg.Guest.LastName,
+                    Name = pmg.Guest.Name,
+                    Patronymic = pmg.Guest.Patronymic,
+                    Phone = pmg.Guest.Phone,
+                    Email = pmg.Guest.Email,
+                    Organization = pmg.Guest.Organization,
+                    Note = pmg.Guest.Note,
+                    Birthday = pmg.Guest.Birthday.ToString(),
+                    PassportSeries = pmg.Guest.PassportSeries,
+                    PassportNumber = pmg.Guest.PassportNumber,
+                    AvatarBytes = pmg.Guest.Avatar,
+                    PassportBytes = pmg.Guest.Passport
+                },
+                Meeting = new MeetingData()
+                {
+                    Id = pmg.PrivateMeeting.Id,
+                    DateTo = pmg.PrivateMeeting.DateTo,
+                    DateFrom = pmg.PrivateMeeting.DateFrom,
+                    Status = new Status
+                    {
+                        Id = pmg.PrivateMeeting.Status.IdStatus,
+                        Name = pmg.PrivateMeeting.Status.StatusName
+                    },
+                    VisitPurpose = pmg.PrivateMeeting.VisitPurpose.Name,
+                    Department = new _Department
+                    {
+                        Id = pmg.PrivateMeeting.Department.Id,
+                        Name = pmg.PrivateMeeting.Department.DepartmentName
+                    },
+                    FullNameEmployee = pmg.PrivateMeeting.Employee.FullName,
+                    MeetingType = new _MeetingType
+                    {
+                        Id = 1,
+                        Name = "Личное посещение"
+                    }
+                }
+            })
+            .ToListAsync();
             return privateRequests;
         }
 
@@ -160,55 +107,60 @@ namespace _1.Controllers
         [HttpGet]
         public async Task<List<AllRequestInfo>> GetGroupRequests()
         {
-            List<AllRequestInfo> groupRequests = await (from groupMeetingGuests in _dbContext.GroupMeetingsGuests
-                                                        join guest in _dbContext.Guests on groupMeetingGuests.GuestId equals guest.IdGuests
-                                                        join groupMeeting in _dbContext.GroupMeetings on groupMeetingGuests.GroupMeetingId equals groupMeeting.GroupMeetingId
-                                                        join department in _dbContext.Departments on groupMeeting.DeprtmentId equals department.Id
-                                                        join employee in _dbContext.Employees on groupMeeting.EmployeeId equals employee.IdEmployees
-                                                        join status in _dbContext.MeetingStatuses on groupMeeting.StatusId equals status.IdStatus
-                                                        join purpose in _dbContext.VisitPurposes on groupMeeting.VisitPurposeId equals purpose.IdVisitPurpose
-                                                        select new AllRequestInfo()
-                                                        {
-                                                            Guest = new GuestData
-                                                            {
-                                                                Id = groupMeetingGuests.GuestId,
-                                                                LastName = guest.LastName,
-                                                                Name = guest.Name,
-                                                                Patronymic = guest.Patronymic,
-                                                                Phone = guest.Phone,
-                                                                Email = guest.Email,
-                                                                Organization = guest.Organization,
-                                                                Note = guest.Note,
-                                                                Birthday = guest.Birthday.ToString(),
-                                                                PassportSeries = guest.PassportSeries,
-                                                                PassportNumber = guest.PassportNumber,
-                                                                AvatarBytes = guest.Avatar,
-                                                                PassportBytes = guest.Passport
-                                                            },
-                                                            Meeting = new MeetingData()
-                                                            {
-                                                                Id = groupMeeting.GroupMeetingId,
-                                                                DateTo = groupMeeting.DateTo,
-                                                                DateFrom = groupMeeting.DateFrom,
-                                                                Status = new Status
-                                                                {
-                                                                    Id = status.IdStatus,
-                                                                    Name = status.StatusName
-                                                                },
-                                                                VisitPurpose = purpose.Name,
-                                                                Department = new _Department
-                                                                {
-                                                                    Id = department.Id,
-                                                                    Name = department.DepartmentName
-                                                                },
-                                                                FullNameEmployee = employee.FullName,
-                                                                MeetingType = new _MeetingType
-                                                                {
-                                                                    Id = 2,
-                                                                    Name = "Групповое посещение"
-                                                                }
-                                                            }
-                                                        }).ToListAsync();
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            List<AllRequestInfo> groupRequests = await _dbContext.GroupMeetingsGuests
+            .Include(group => group.Guest)
+            .Include(group => group.GroupMeeting)
+            .ThenInclude(meeting => meeting.Deprtment)
+            .Include(group => group.GroupMeeting)
+            .ThenInclude(meeting => meeting.Status)
+            .Include(group => group.GroupMeeting)
+            .ThenInclude(meeting => meeting.VisitPurpose)
+            .Select(group => new AllRequestInfo
+            {
+                Guest = new GuestData
+                {
+                    Id = group.GuestId,
+                    LastName = group.Guest.LastName,
+                    Name = group.Guest.Name,
+                    Patronymic = group.Guest.Patronymic,
+                    Phone = group.Guest.Phone,
+                    Email = group.Guest.Email,
+                    Organization = group.Guest.Organization,
+                    Note = group.Guest.Note,
+                    Birthday = group.Guest.Birthday.ToString(),
+                    PassportSeries = group.Guest.PassportSeries,
+                    PassportNumber = group.Guest.PassportNumber,
+                    AvatarBytes = group.Guest.Avatar,
+                    PassportBytes = group.Guest.Passport
+                },
+                Meeting = new MeetingData
+                {
+                    Id = group.GroupMeeting.GroupMeetingId,
+                    DateTo = group.GroupMeeting.DateTo,
+                    DateFrom = group.GroupMeeting.DateFrom,
+                    Status = new Status
+                    {
+                        Id = group.GroupMeeting.Status.IdStatus,
+                        Name = group.GroupMeeting.Status.StatusName
+                    },
+                    VisitPurpose = group.GroupMeeting.VisitPurpose.Name,
+                    Department = new _Department
+                    {
+                        Id = group.GroupMeeting.Deprtment.Id,
+                        Name = group.GroupMeeting.Deprtment.DepartmentName
+                    },
+                    FullNameEmployee = group.GroupMeeting.Employee.FullName,
+                    MeetingType = new _MeetingType
+                    {
+                        Id = 2,
+                        Name = "Групповое посещение"
+                    }
+                }
+            })
+            .ToListAsync();
+
+            stopwatch.Stop();
             return groupRequests;
         }
 
@@ -219,12 +171,13 @@ namespace _1.Controllers
         [HttpGet]
         public async Task<List<_Department>> GetDepartmentsAsync()
         {
-            return (await (from d in _dbContext.Departments
-                           select new _Department
-                           {
-                               Id = d.Id,
-                               Name = d.DepartmentName
-                           }).ToListAsync());
+            return await _dbContext.Departments.AsNoTracking()
+            .Select(d => new _Department
+            {
+                Id = d.Id,
+                Name = d.DepartmentName
+            })
+            .ToListAsync();
         }
 
         /// <summary>
@@ -328,6 +281,30 @@ namespace _1.Controllers
         }
 
         [HttpPost]
+        public async Task<DateOnly> GetPivateRequestVisitDate([FromBody] int id)
+        {
+            return await _dbContext.AcceptedPrivateRequests.Where(g => g.PrivateRequestId == id).Select(r=>r.DateVisit).FirstOrDefaultAsync();
+        }
+
+        [HttpPost]
+        public async Task<DateOnly> GetGroupRequestVisitDate([FromBody] int id)
+        {
+            return await _dbContext.AcceptedGroupRequests.Where(g => g.GroupRequestId == id).Select(r => r.DateVisit).FirstOrDefaultAsync();
+        }
+
+        [HttpPost]
+        public async Task<TimeOnly> GetPrivateRequestVisitTime([FromBody] int id)
+        {
+            return await _dbContext.AcceptedPrivateRequests.Where(g => g.PrivateRequestId == id).Select(r => r.Time).FirstOrDefaultAsync();
+        }
+
+        [HttpPost]
+        public async Task<TimeOnly> GetGroupRequestVisitTime([FromBody] int id)
+        {
+            return await _dbContext.AcceptedGroupRequests.Where(g => g.GroupRequestId == id).Select(r => r.Time).FirstOrDefaultAsync();
+        }
+
+        [HttpPost]
         public async Task DenyPrivateRequestAsync([FromBody] _PrivateDeniedRequest request)
         {
             PrivateMeeting meeting = await _dbContext.PrivateMeetings.Where(r => r.Id == request.PrivateRequestId).FirstAsync();
@@ -336,6 +313,47 @@ namespace _1.Controllers
             {
                 PrivateRequestId = request.PrivateRequestId,
                 DeniedReasonId = request.DeniedReasonId
+            });
+            await _dbContext.SaveChangesAsync();
+        }
+
+        [HttpPost]
+        public async Task DenyGroupRequestAsync([FromBody] _GroupDeniedRequest request)
+        {
+            GroupMeeting meeting = await _dbContext.GroupMeetings.Where(r => r.GroupMeetingId == request.GroupRequestId).FirstAsync();
+            meeting.StatusId = 3;
+            await _dbContext.GroupDeniedRequests.AddAsync(new GroupDeniedRequest
+            {
+                GroupRequestId = request.GroupRequestId,
+                DeniedReasonId = request.DeniedReasonId
+            });
+            await _dbContext.SaveChangesAsync();
+        }
+
+        [HttpPost]
+        public async Task AcceptPrivateRequestAsync([FromBody] _AcceptedPrivateRequest request)
+        {
+            PrivateMeeting meeting = await _dbContext.PrivateMeetings.Where(r => r.Id == request.PrivateRequestId).FirstAsync();
+            meeting.StatusId = 2;
+            await _dbContext.AcceptedPrivateRequests.AddAsync(new AcceptedPrivateRequest
+            {
+                PrivateRequestId = request.PrivateRequestId,
+                Time = request.Time,
+                DateVisit = request.DateVisit,
+            });
+            await _dbContext.SaveChangesAsync();
+        }
+
+        [HttpPost]
+        public async Task AcceptGroupRequestAsync([FromBody] _AcceptedGroupRequest request)
+        {
+            GroupMeeting meeting = await _dbContext.GroupMeetings.Where(r => r.GroupMeetingId == request.GroupRequestId).FirstAsync();
+            meeting.StatusId = 2;
+            await _dbContext.AcceptedGroupRequests.AddAsync(new AcceptedGroupRequest
+            {
+                GroupRequestId = request.GroupRequestId,
+                Time = request.Time,
+                DateVisit = request.DateVisit,
             });
             await _dbContext.SaveChangesAsync();
         }

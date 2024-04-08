@@ -219,6 +219,8 @@ public partial class Ispr2438IbragimovaDm1Context : DbContext
 
             entity.HasIndex(e => e.GroupId, "FK_GMGroup_idx");
 
+            entity.HasIndex(e => e.VisitPurposeId, "FK_GMVisitPurpose_idx");
+
             entity.HasIndex(e => e.StatusId, "FK_GroupStatus_idx");
 
             entity.HasOne(d => d.Deprtment).WithMany(p => p.GroupMeetings)
@@ -240,6 +242,11 @@ public partial class Ispr2438IbragimovaDm1Context : DbContext
                 .HasForeignKey(d => d.StatusId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_GMStatus");
+
+            entity.HasOne(d => d.VisitPurpose).WithMany(p => p.GroupMeetings)
+                .HasForeignKey(d => d.VisitPurposeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_GMVisitPurpose");
         });
 
         modelBuilder.Entity<GroupMeetingsGuest>(entity =>

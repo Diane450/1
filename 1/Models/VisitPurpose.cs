@@ -9,5 +9,7 @@ public partial class VisitPurpose
 
     public string Name { get; set; } = null!;
 
+    public virtual ICollection<GroupMeeting> GroupMeetings { get; set; } = new List<GroupMeeting>();
+
     public virtual ICollection<PrivateMeeting> PrivateMeetings { get; set; } = new List<PrivateMeeting>();
 }

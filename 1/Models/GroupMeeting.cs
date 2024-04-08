@@ -38,4 +38,6 @@ public partial class GroupMeeting
     public virtual ICollection<GroupRequestsAllowedAccess> GroupRequestsAllowedAccesses { get; set; } = new List<GroupRequestsAllowedAccess>();
 
     public virtual MeetingStatus Status { get; set; } = null!;
+
+    public virtual VisitPurpose VisitPurpose { get; set; } = null!;
 }

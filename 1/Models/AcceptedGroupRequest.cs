@@ -9,7 +9,7 @@ public partial class AcceptedGroupRequest
 
     public int GroupRequestId { get; set; }
 
-    public DateOnly Date { get; set; }
+    public DateOnly DateVisit { get; set; }
 
     public TimeOnly Time { get; set; }
 
