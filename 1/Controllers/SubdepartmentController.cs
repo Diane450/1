@@ -26,15 +26,17 @@ namespace _1.Controllers
         /// </summary>
         /// <param name="code"></param>
         /// <returns></returns>
+        
         [HttpPost]
-        public async Task<bool> Authorization([FromBody] string code)
+        public async Task<string> Authorization([FromBody] string code)
         {
             if (int.TryParse(code, out int result))
             {
                 var employee = await _dbContext.Employees.Where(e => e.Code == result).FirstOrDefaultAsync();
-                return employee != null && employee.Subdepartment == subdepartmentId;
+                if (employee != null && employee.Subdepartment == subdepartmentId)
+                    return employee.FullName;
             }
-            return false;
+            return null;
         }
 
         /// <summary>
@@ -283,7 +285,7 @@ namespace _1.Controllers
         [HttpPost]
         public async Task<DateOnly> GetPivateRequestVisitDate([FromBody] int id)
         {
-            return await _dbContext.AcceptedPrivateRequests.Where(g => g.PrivateRequestId == id).Select(r=>r.DateVisit).FirstOrDefaultAsync();
+            return await _dbContext.AcceptedPrivateRequests.Where(g => g.PrivateRequestId == id).Select(r => r.DateVisit).FirstOrDefaultAsync();
         }
 
         [HttpPost]
@@ -356,6 +358,75 @@ namespace _1.Controllers
                 DateVisit = request.DateVisit,
             });
             await _dbContext.SaveChangesAsync();
+        }
+
+        
+        [HttpPost]
+        public async Task<int> GetAcceptedAmountRequest([FromBody] DateOnly[] range)
+        {
+            var privateRequestCount = await _dbContext.AcceptedPrivateRequests
+                .Include(r => r.PrivateRequest)
+                .Where(r => r.PrivateRequest.DateCreation > range[0] && r.PrivateRequest.DateCreation < range[1]).CountAsync();
+            var groupRequestCount = await _dbContext.AcceptedGroupRequests
+                .Include(r => r.GroupRequest)
+                .Where(r => r.GroupRequest.DateCreation > range[0] && r.GroupRequest.DateCreation < range[1]).CountAsync();
+
+            return privateRequestCount + groupRequestCount;
+        }
+
+        [HttpPost]
+        public async Task<int> GetDeniedAmountRequest([FromBody] DateOnly[] range)
+        {
+            var privateRequestCount = await _dbContext.PrivateDeniedRequests
+                .Include(r => r.PrivateRequest)
+                .Where(r => r.PrivateRequest.DateCreation > range[0] && r.PrivateRequest.DateCreation < range[1]).CountAsync();
+            var groupRequestCount = await _dbContext.GroupDeniedRequests
+                .Include(r => r.GroupRequest)
+                .Where(r => r.GroupRequest.DateCreation > range[0] && r.GroupRequest.DateCreation < range[1]).CountAsync();
+            
+            return privateRequestCount + groupRequestCount;
+        }
+
+        [HttpPost]
+        public async Task<int> GetAllRequestsAmount([FromBody] DateOnly[] range)
+        {
+            var privateRequestCount = await _dbContext.PrivateMeetings
+                .Where(r => r.DateCreation > range[0] && r.DateCreation < range[1]).CountAsync();
+
+            var groupRequestCount = await _dbContext.GroupMeetings
+                .Where(r => r.DateCreation > range[0] && r.DateCreation < range[1]).CountAsync();
+
+            return privateRequestCount + groupRequestCount;
+        }
+
+        [HttpPost]
+        public async Task<Dictionary<string, int>> GetPrivateRequestsReportDepartmentAsync([FromBody] DateOnly[]range)
+        {
+            var result = await _dbContext.PrivateMeetings
+                .Where(r => r.DateCreation > range[0] && r.DateCreation < range[1])
+                .GroupBy(e => e.Department.DepartmentName)
+                .Select(g => new { DepartmentName = g.Key, Count = g.Count() })
+                .ToListAsync();
+
+            var allDepartments = await _dbContext.Departments.Select(d => d.DepartmentName).ToListAsync();
+
+            var finalResult = allDepartments.ToDictionary(dep => dep, dep => result.FirstOrDefault(r => r.DepartmentName == dep)?.Count ?? 0);
+            return finalResult;
+        }
+
+        [HttpPost]
+        public async Task<Dictionary<string, int>> GetGroupRequestsReportDepartmentAsync([FromBody] DateOnly[] range)
+        {
+            var result = await _dbContext.GroupMeetings
+                .Where(r => r.DateCreation > range[0] && r.DateCreation < range[1])
+                .GroupBy(e => e.Deprtment.DepartmentName)
+                .Select(g => new { DepartmentName = g.Key, Count = g.Count() })
+                .ToListAsync();
+
+            var allDepartments = await _dbContext.Departments.Select(d => d.DepartmentName).ToListAsync();
+
+            var finalResult = allDepartments.ToDictionary(dep => dep, dep => result.FirstOrDefault(r => r.DepartmentName == dep)?.Count ?? 0);
+            return finalResult;
         }
     }
 }

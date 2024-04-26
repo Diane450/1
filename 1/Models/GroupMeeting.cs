@@ -7,6 +7,8 @@ public partial class GroupMeeting
 {
     public int GroupMeetingId { get; set; }
 
+    public DateOnly DateCreation { get; set; }
+
     public DateOnly DateFrom { get; set; }
 
     public DateOnly DateTo { get; set; }
