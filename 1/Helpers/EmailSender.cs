@@ -50,5 +50,29 @@ namespace _1.Helpers
             #endregion
         
         }
+
+        public async Task SendEmailAsync(string email, MailMessage msg)
+        {
+            MailAddress fromEmail = new MailAddress("ibragdi05@gmail.com", "КИИ");
+            //MailAddress toEmail = new MailAddress(email);
+            MailMessage message = new MailMessage()
+            {
+                Body = msg.Body,
+                Subject = msg.Subject,
+                From = fromEmail
+            };
+
+            SmtpClient smtp = new SmtpClient();
+            smtp.UseDefaultCredentials = false;
+
+            smtp.Host = "smtp.gmail.com";
+            smtp.Port = 587;
+            smtp.EnableSsl = true;
+            //smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+            smtp.Credentials = new NetworkCredential(fromEmail.Address, "atgb nnff agjf krll");
+
+            message.To.Add(email);
+            await smtp.SendMailAsync(message);
+        }
     }
 }

@@ -8,5 +8,6 @@
 
         public int DeniedReasonId { get; set; }
 
+        public DateOnly CreationDate { get; set; }
     }
 }

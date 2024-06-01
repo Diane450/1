@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Net.Mail;
 
 namespace _1.Controllers
 {
@@ -21,11 +22,6 @@ namespace _1.Controllers
             this._dbContext = _dbContext;
             _emailSender = emailSender;
         }
-        /// <summary>
-        /// Авторизация сотрдуников общего отдела и охраны
-        /// </summary>
-        /// <param name="code"></param>
-        /// <returns></returns>
         
         [HttpPost]
         public async Task<string> Authorization([FromBody] string code)
@@ -39,10 +35,7 @@ namespace _1.Controllers
             return null;
         }
 
-        /// <summary>
-        /// Возвращает список личных заявок
-        /// </summary>
-        /// <returns></returns>
+
         [HttpGet]
         public async Task<List<AllRequestInfo>> GetPrivateRequests()
         {
@@ -102,14 +95,10 @@ namespace _1.Controllers
             return privateRequests;
         }
 
-        ///// <summary>
-        ///// Возвращает список групповых заявок
-        ///// </summary>
-        ///// <returns></returns>
+        
         [HttpGet]
         public async Task<List<AllRequestInfo>> GetGroupRequests()
         {
-            Stopwatch stopwatch = Stopwatch.StartNew();
             List<AllRequestInfo> groupRequests = await _dbContext.GroupMeetingsGuests
             .Include(group => group.Guest)
             .Include(group => group.GroupMeeting)
@@ -161,15 +150,10 @@ namespace _1.Controllers
                 }
             })
             .ToListAsync();
-
-            stopwatch.Stop();
             return groupRequests;
         }
 
-        /// <summary>
-        /// Возвращает список отделов предприятия
-        /// </summary>
-        /// <returns></returns>
+        
         [HttpGet]
         public async Task<List<_Department>> GetDepartmentsAsync()
         {
@@ -182,10 +166,7 @@ namespace _1.Controllers
             .ToListAsync();
         }
 
-        /// <summary>
-        /// Возвращает список статусов заявок
-        /// </summary>
-        /// <returns></returns>
+        
         [HttpGet]
         public async Task<List<Status>> GetStatusesAsync()
         {
@@ -197,10 +178,7 @@ namespace _1.Controllers
                            }).ToListAsync());
         }
 
-        /// <summary>
-        /// Возвращает список типов заявок
-        /// </summary>
-        /// <returns></returns>
+        
         [HttpGet]
         public List<_MeetingType> GetMeetingTypes()
         {
@@ -225,10 +203,7 @@ namespace _1.Controllers
         }
 
 
-        /// <summary>
-        /// Возвращает список причин отказа заявки
-        /// </summary>
-        /// <returns></returns>
+        
         [HttpGet]
         public async Task<List<_DeniedReason>> GetDeniedReasons()
         {
@@ -240,11 +215,7 @@ namespace _1.Controllers
                           }).ToListAsync();
         }
 
-        /// <summary>
-        /// Возваращает причину отказа личной заявки
-        /// </summary>
-        /// <param name="requestId"></param>
-        /// <returns></returns>
+        
         [HttpPost]
         public async Task<_DeniedReason> GetPrivateRequestDeniedReason([FromBody] int requestId)
         {
@@ -258,11 +229,7 @@ namespace _1.Controllers
                           }).FirstAsync();
         }
 
-        /// <summary>
-        /// Возвращает причину отказа групповой заявки
-        /// </summary>
-        /// <param name="requestId"></param>
-        /// <returns></returns>
+        
         [HttpPost]
         public async Task<_DeniedReason> GetGroupRequestDeniedReason([FromBody] int requestId)
         {
@@ -317,6 +284,13 @@ namespace _1.Controllers
                 DeniedReasonId = request.DeniedReasonId
             });
             await _dbContext.SaveChangesAsync();
+
+            MailMessage message = new MailMessage();
+            var reason = await _dbContext.DeniedReasons.FirstAsync(d => d.Id == request.DeniedReasonId);
+            message.Subject = "Заявка на посещение объекта отклонена";
+            message.Body = $"Уважаемый клиент! К сожалению, ваша заявка от {request.CreationDate} на посещение предприятия отклонена. Причина: {reason.Descryption}";
+
+            await _emailSender.SendEmailAsync(request.ClientEmail, message);
         }
 
         [HttpPost]
@@ -330,6 +304,20 @@ namespace _1.Controllers
                 DeniedReasonId = request.DeniedReasonId
             });
             await _dbContext.SaveChangesAsync();
+
+            MailMessage message = new MailMessage();
+            var reason = await _dbContext.DeniedReasons.FirstAsync(d => d.Id == request.DeniedReasonId);
+            
+            var emails = await _dbContext.GroupMeetingsGuests
+                .Where(g => g.GroupMeetingId == request.GroupRequestId)
+                .Include(g => g.Guest)
+                .Select(g=>g.Guest.Email)
+                .ToListAsync();
+
+            message.Subject = "Заявка на посещение объекта отклонена";
+            message.Body = $"Уважаемый клиент! К сожалению, ваша заявка от {request.CreationDate} на посещение предприятия отклонена. Причина: {reason.Descryption}";
+
+            await _emailSender.SendEmailAsync(emails, message);
         }
 
         [HttpPost]
@@ -344,6 +332,12 @@ namespace _1.Controllers
                 DateVisit = request.DateVisit,
             });
             await _dbContext.SaveChangesAsync();
+
+            MailMessage message = new MailMessage();
+            message.Subject = "Заявка на посещение объекта одобрена";
+            message.Body = $"Уважаемый клиент! Ваша заявка от {request.CreationDate} на посещение предприятия одобрена. Дата: {request.DateVisit}. Время: {request.Time}";
+
+            await _emailSender.SendEmailAsync(request.ClientEmail, message);
         }
 
         [HttpPost]
@@ -358,9 +352,22 @@ namespace _1.Controllers
                 DateVisit = request.DateVisit,
             });
             await _dbContext.SaveChangesAsync();
+
+            MailMessage message = new MailMessage();
+
+            var emails = await _dbContext.GroupMeetingsGuests
+                .Where(g => g.GroupMeetingId == request.GroupRequestId)
+                .Include(g => g.Guest)
+                .Select(g => g.Guest.Email)
+                .ToListAsync();
+
+            message.Subject = "Заявка на посещение объекта одобрена";
+            message.Body = $"Уважаемый клиент! Ваша заявка от {request.CreationDate} на посещение предприятия одобрена. Дата: {request.DateVisit}. Время: {request.Time}";
+
+            await _emailSender.SendEmailAsync(emails, message);
         }
 
-        
+
         [HttpPost]
         public async Task<int> GetAcceptedAmountRequest([FromBody] DateOnly[] range)
         {

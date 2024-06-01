@@ -6,10 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.Limits.MaxRequestBodySize = 104857600;
-});
+
 // Add services to the container.
 
 builder.Services.AddControllers();

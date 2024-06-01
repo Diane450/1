@@ -9,5 +9,7 @@
         public DateOnly DateVisit { get; set; }
 
         public TimeOnly Time { get; set; }
+
+        public DateOnly CreationDate { get; set; }
     }
 }

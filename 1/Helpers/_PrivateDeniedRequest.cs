@@ -7,5 +7,9 @@
         public int PrivateRequestId { get; set; }
 
         public int DeniedReasonId { get; set; }
+
+        public string ClientEmail { get; set; } = null!;
+
+        public DateOnly CreationDate { get; set; }
     }
 }
