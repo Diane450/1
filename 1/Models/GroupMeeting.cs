@@ -25,8 +25,6 @@ public partial class GroupMeeting
 
     public virtual ICollection<AcceptedGroupRequest> AcceptedGroupRequests { get; set; } = new List<AcceptedGroupRequest>();
 
-    public virtual ICollection<CheckGroupRequest> CheckGroupRequests { get; set; } = new List<CheckGroupRequest>();
-
     public virtual Department Deprtment { get; set; } = null!;
 
     public virtual Employee Employee { get; set; } = null!;

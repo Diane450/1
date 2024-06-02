@@ -23,8 +23,6 @@ public partial class PrivateMeeting
 
     public virtual ICollection<AcceptedPrivateRequest> AcceptedPrivateRequests { get; set; } = new List<AcceptedPrivateRequest>();
 
-    public virtual ICollection<CheckPrivateRequest> CheckPrivateRequests { get; set; } = new List<CheckPrivateRequest>();
-
     public virtual Department Department { get; set; } = null!;
 
     public virtual Employee Employee { get; set; } = null!;

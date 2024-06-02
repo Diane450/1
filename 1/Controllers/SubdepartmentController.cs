@@ -22,15 +22,26 @@ namespace _1.Controllers
             this._dbContext = _dbContext;
             _emailSender = emailSender;
         }
-        
+
         [HttpPost]
-        public async Task<string> Authorization([FromBody] string code)
+        public async Task<_Employee?> Authorization([FromBody] string code)
         {
             if (int.TryParse(code, out int result))
             {
-                var employee = await _dbContext.Employees.Where(e => e.Code == result).FirstOrDefaultAsync();
+                var employee = await _dbContext.Employees.FirstOrDefaultAsync(e => e.Code == result);
                 if (employee != null && employee.Subdepartment == subdepartmentId)
-                    return employee.FullName;
+                {
+                    return new _Employee
+                    {
+                        IdEmployees = employee.IdEmployees,
+                        FullName = employee.FullName,
+                        EmployeeUserType = new _EmployeeUserType
+                        {
+                            Id = employee.EmployeeUserTypeId,
+                        }
+                    };
+                }
+
             }
             return null;
         }
@@ -95,7 +106,7 @@ namespace _1.Controllers
             return privateRequests;
         }
 
-        
+
         [HttpGet]
         public async Task<List<AllRequestInfo>> GetGroupRequests()
         {
@@ -153,7 +164,7 @@ namespace _1.Controllers
             return groupRequests;
         }
 
-        
+
         [HttpGet]
         public async Task<List<_Department>> GetDepartmentsAsync()
         {
@@ -166,7 +177,7 @@ namespace _1.Controllers
             .ToListAsync();
         }
 
-        
+
         [HttpGet]
         public async Task<List<Status>> GetStatusesAsync()
         {
@@ -178,7 +189,7 @@ namespace _1.Controllers
                            }).ToListAsync());
         }
 
-        
+
         [HttpGet]
         public List<_MeetingType> GetMeetingTypes()
         {
@@ -203,7 +214,7 @@ namespace _1.Controllers
         }
 
 
-        
+
         [HttpGet]
         public async Task<List<_DeniedReason>> GetDeniedReasons()
         {
@@ -215,7 +226,7 @@ namespace _1.Controllers
                           }).ToListAsync();
         }
 
-        
+
         [HttpPost]
         public async Task<_DeniedReason> GetPrivateRequestDeniedReason([FromBody] int requestId)
         {
@@ -229,7 +240,7 @@ namespace _1.Controllers
                           }).FirstAsync();
         }
 
-        
+
         [HttpPost]
         public async Task<_DeniedReason> GetGroupRequestDeniedReason([FromBody] int requestId)
         {
@@ -307,11 +318,11 @@ namespace _1.Controllers
 
             MailMessage message = new MailMessage();
             var reason = await _dbContext.DeniedReasons.FirstAsync(d => d.Id == request.DeniedReasonId);
-            
+
             var emails = await _dbContext.GroupMeetingsGuests
                 .Where(g => g.GroupMeetingId == request.GroupRequestId)
                 .Include(g => g.Guest)
-                .Select(g=>g.Guest.Email)
+                .Select(g => g.Guest.Email)
                 .ToListAsync();
 
             message.Subject = "Заявка на посещение объекта отклонена";
@@ -390,7 +401,7 @@ namespace _1.Controllers
             var groupRequestCount = await _dbContext.GroupDeniedRequests
                 .Include(r => r.GroupRequest)
                 .Where(r => r.GroupRequest.DateCreation > range[0] && r.GroupRequest.DateCreation < range[1]).CountAsync();
-            
+
             return privateRequestCount + groupRequestCount;
         }
 
@@ -407,7 +418,7 @@ namespace _1.Controllers
         }
 
         [HttpPost]
-        public async Task<Dictionary<string, int>> GetPrivateRequestsReportDepartmentAsync([FromBody] DateOnly[]range)
+        public async Task<Dictionary<string, int>> GetPrivateRequestsReportDepartmentAsync([FromBody] DateOnly[] range)
         {
             var result = await _dbContext.PrivateMeetings
                 .Where(r => r.DateCreation > range[0] && r.DateCreation < range[1])
@@ -434,6 +445,110 @@ namespace _1.Controllers
 
             var finalResult = allDepartments.ToDictionary(dep => dep, dep => result.FirstOrDefault(r => r.DepartmentName == dep)?.Count ?? 0);
             return finalResult;
+        }
+
+        [HttpGet]
+        public async Task<List<_Employee>> GetEmployees()
+        {
+            return await _dbContext.Employees
+                .Include(e => e.EmployeeUserType)
+                .Include(e => e.DepartmentNavigation)
+                .Include(e => e.SubdepartmentNavigation)
+                .Select(e => new _Employee
+                {
+                    IdEmployees = e.IdEmployees,
+                    FullName = e.FullName,
+                    Photo = e.Photo,
+                    Code = e.Code,
+                    PassportNumber = e.PassportNumber,
+                    PassportSeries = e.PassportSeries,
+                    EmployeeUserType = new _EmployeeUserType
+                    {
+                        Id = e.EmployeeUserType.Id,
+                        Type = e.EmployeeUserType.Type,
+                    },
+                    Subdepartment = e.SubdepartmentNavigation == null ? null : new _Subdepartment
+                    {
+                        Id = e.SubdepartmentNavigation.Id,
+                        SubdepartmentName = e.SubdepartmentNavigation.SubdepartmentName
+                    },
+                    Department = e.DepartmentNavigation == null ? null : new _Department
+                    {
+                        Id = e.DepartmentNavigation.Id,
+                        Name = e.DepartmentNavigation.DepartmentName
+                    }
+                })
+                .ToListAsync();
+        }
+
+        [HttpPost]
+        public async Task SaveChangesEmployees([FromBody] _Employee _employee)
+        {
+            var employee = new Employee
+            {
+                FullName = _employee.FullName,
+                Department = _employee.Department?.Id,
+                Subdepartment = _employee.Subdepartment?.Id,
+                Code = _employee.Code,
+                PassportNumber = _employee.PassportNumber,
+                PassportSeries = _employee.PassportSeries,
+                Photo = _employee.Photo,
+                EmployeeUserTypeId = (int)_employee.EmployeeUserType!.Id
+            };
+            employee.IdEmployees = _employee.IdEmployees;
+            _dbContext.Update(employee);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        [HttpGet]
+        public async Task<List<_EmployeeUserType>> GetUserTypes()
+        {
+            return await _dbContext.EmployeeUserTypes
+                .Select(s => new _EmployeeUserType
+                {
+                    Id = s.Id,
+                    Type = s.Type,
+                }).ToListAsync();
+        }
+
+        [HttpGet]
+        public async Task<List<_Subdepartment>> GetSubdepartment()
+        {
+            return await _dbContext.Subdepartments
+                .Select(s => new _Subdepartment
+                {
+                    Id = s.Id,
+                    SubdepartmentName = s.SubdepartmentName,
+                }).ToListAsync();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddEmployee([FromBody] _Employee _employee)
+        {
+            var code = await _dbContext.Employees
+                .FirstOrDefaultAsync(e => e.Code == _employee.Code && e.Subdepartment == 1);
+            if (code == null)
+            {
+                var employee = new Employee
+                {
+                    FullName = _employee.FullName,
+                    Code = _employee.Code,
+                    PassportNumber = _employee.PassportNumber,
+                    PassportSeries = _employee.PassportSeries,
+                    Department = _employee.Department?.Id,
+                    Subdepartment = _employee.Subdepartment?.Id,
+                    Photo = _employee.Photo,
+                    EmployeeUserTypeId = (int)_employee.EmployeeUserType!.Id
+                };
+
+                await _dbContext.Employees.AddAsync(employee);
+                await _dbContext.SaveChangesAsync();
+                return Ok();
+            }
+            else
+            {
+                return BadRequest("Данный код уже используется");
+            }
         }
     }
 }

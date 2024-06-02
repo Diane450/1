@@ -15,7 +15,17 @@ public partial class Employee
 
     public int Code { get; set; }
 
+    public byte[]? Photo { get; set; }
+
+    public int PassportNumber { get; set; }
+
+    public int PassportSeries { get; set; }
+
+    public int EmployeeUserTypeId { get; set; }
+
     public virtual Department? DepartmentNavigation { get; set; }
+
+    public virtual EmployeeUserType EmployeeUserType { get; set; } = null!;
 
     public virtual ICollection<GroupMeeting> GroupMeetings { get; set; } = new List<GroupMeeting>();
 

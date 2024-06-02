@@ -21,15 +21,13 @@ public partial class Ispr2438IbragimovaDm1Context : DbContext
 
     public virtual DbSet<BlackListGuest> BlackListGuests { get; set; }
 
-    public virtual DbSet<CheckGroupRequest> CheckGroupRequests { get; set; }
-
-    public virtual DbSet<CheckPrivateRequest> CheckPrivateRequests { get; set; }
-
     public virtual DbSet<DeniedReason> DeniedReasons { get; set; }
 
     public virtual DbSet<Department> Departments { get; set; }
 
     public virtual DbSet<Employee> Employees { get; set; }
+
+    public virtual DbSet<EmployeeUserType> EmployeeUserTypes { get; set; }
 
     public virtual DbSet<Group> Groups { get; set; }
 
@@ -115,34 +113,6 @@ public partial class Ispr2438IbragimovaDm1Context : DbContext
                 .HasConstraintName("FK_BlackListGuests_GuestId");
         });
 
-        modelBuilder.Entity<CheckGroupRequest>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("CheckGroupRequest");
-
-            entity.HasIndex(e => e.GroupRequestId, "FK_GPR_GroupRequestId_idx");
-
-            entity.HasOne(d => d.GroupRequest).WithMany(p => p.CheckGroupRequests)
-                .HasForeignKey(d => d.GroupRequestId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_GPR_GroupRequestId");
-        });
-
-        modelBuilder.Entity<CheckPrivateRequest>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("CheckPrivateRequest");
-
-            entity.HasIndex(e => e.PrivateRequestId, "FK_CPR_PrivateRequestId_idx");
-
-            entity.HasOne(d => d.PrivateRequest).WithMany(p => p.CheckPrivateRequests)
-                .HasForeignKey(d => d.PrivateRequestId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_CPR_PrivateRequestId");
-        });
-
         modelBuilder.Entity<DeniedReason>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
@@ -168,6 +138,8 @@ public partial class Ispr2438IbragimovaDm1Context : DbContext
 
             entity.HasIndex(e => e.Subdepartment, "FK_EmployeesSubdepartment_idx");
 
+            entity.HasIndex(e => e.EmployeeUserTypeId, "FK_Employees_EmployeeUserType_idx");
+
             entity.Property(e => e.IdEmployees).HasColumnName("idEmployees");
             entity.Property(e => e.FullName).HasMaxLength(45);
 
@@ -175,9 +147,23 @@ public partial class Ispr2438IbragimovaDm1Context : DbContext
                 .HasForeignKey(d => d.Department)
                 .HasConstraintName("FK_EmployeesDepartment");
 
+            entity.HasOne(d => d.EmployeeUserType).WithMany(p => p.Employees)
+                .HasForeignKey(d => d.EmployeeUserTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Employees_UserType");
+
             entity.HasOne(d => d.SubdepartmentNavigation).WithMany(p => p.Employees)
                 .HasForeignKey(d => d.Subdepartment)
                 .HasConstraintName("FK_EmployeesSubdepartment");
+        });
+
+        modelBuilder.Entity<EmployeeUserType>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("EmployeeUserType");
+
+            entity.Property(e => e.Type).HasMaxLength(45);
         });
 
         modelBuilder.Entity<Group>(entity =>
