@@ -12,7 +12,6 @@ namespace _1.Helpers
         public async Task SendEmailAsync(List<string> email, MailMessage msg)
         {
             MailAddress fromEmail = new MailAddress("ibragdi05@gmail.com", "КИИ");
-            //MailAddress toEmail = new MailAddress(email);
             MailMessage message = new MailMessage()
             {
                 Body = msg.Body,
@@ -54,7 +53,6 @@ namespace _1.Helpers
         public async Task SendEmailAsync(string email, MailMessage msg)
         {
             MailAddress fromEmail = new MailAddress("ibragdi05@gmail.com", "КИИ");
-            //MailAddress toEmail = new MailAddress(email);
             MailMessage message = new MailMessage()
             {
                 Body = msg.Body,
@@ -68,7 +66,6 @@ namespace _1.Helpers
             smtp.Host = "smtp.gmail.com";
             smtp.Port = 587;
             smtp.EnableSsl = true;
-            //smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
             smtp.Credentials = new NetworkCredential(fromEmail.Address, "atgb nnff agjf krll");
 
             message.To.Add(email);
