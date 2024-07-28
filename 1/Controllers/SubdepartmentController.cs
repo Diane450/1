@@ -10,11 +10,10 @@ namespace _1.Controllers
     {
         private IDataContextService _service;
         private readonly IEmailSender _emailSender;
-        private static readonly int subdepartmentId = 1;
 
         public SubdepartmentController(IDataContextService service, IEmailSender emailSender)
         {
-            _service = service;
+            _service = service; 
             _emailSender = emailSender;
         }
 
