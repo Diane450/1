@@ -25,7 +25,7 @@ namespace _1.Controllers
             this._dbContext = _dbContext;
             _emailSender = emailSender;
         }
-        //регистрация
+
         [HttpPost]
         public async Task<int> Register([FromBody] AuthBody value)
         {
