@@ -1,6 +1,9 @@
 ﻿using _1.Interfaces;
-using _1.Models;
+using _1.DbModels;
 using Microsoft.EntityFrameworkCore;
+using _1.Responses;
+using _1.Requests;
+using Newtonsoft.Json.Linq;
 
 namespace _1.Services
 {
@@ -16,32 +19,40 @@ namespace _1.Services
             _jwtTokenService = jwtTokenService;
         }
 
-        public async Task<string> Authenticate(string login, string password)
+        public async Task<AuthorizationResponse> Register(RegistrationRequest registrationRequest)
         {
-            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Login == login);
-
-            if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
+            var salt = BCrypt.Net.BCrypt.GenerateSalt();
+            
+            User user = new User
             {
-                throw new Exception("Username or password is incorrect");
-            }
-            return null;
-            //else
-            //{
-            //    var token = _jwtTokenService.GenerateToken(user);
-            //    var refreshToken = _jwtTokenService.GenerateRefreshToken();
-            //    return new 
-            //}
+                Email = registrationRequest.Email,
+                Login = registrationRequest.Login,
+                Password = BCrypt.Net.BCrypt.HashPassword(registrationRequest.Password, salt!),
+                Salt = salt,
+                UserRole = _dbContext.UserRoles.First(r=>r.Role=="Пользователь")
+            };
+            
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.SaveChangesAsync();
 
+            return _jwtTokenService.GenerateTokens(user);
         }
 
-        public Task<string> RefreshToken(string token)
+        public async Task<AuthorizationResponse> Authenticate(AuthorizationRequest authorizationRequest)
         {
-            throw new NotImplementedException();
+            var existingUser = await _dbContext.Users.Where(u => u.Login == authorizationRequest.Login).Include(u=>u.UserRole).FirstOrDefaultAsync();
+
+            if (existingUser == null || existingUser.Password == BCrypt.Net.BCrypt.HashPassword(authorizationRequest.Password, existingUser.Salt!))
+                throw new Exception("Неверный логин или пароль");
+            else
+                return _jwtTokenService.GenerateTokens(existingUser);
         }
 
-        public Task RevokeToken(string token)
+        public async Task<AuthorizationResponse> RefreshToken(RefreshTokenRequest refreshTokenRequest)
         {
-            throw new NotImplementedException();
+            User user = await _dbContext.Users.Where(u => u.IdUser == refreshTokenRequest.UserId).Include(u => u.UserRole).FirstOrDefaultAsync();
+
+            return await _jwtTokenService.RefreshAccessToken(refreshTokenRequest, user!);
         }
     }
 }

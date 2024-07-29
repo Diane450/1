@@ -1,5 +1,5 @@
 ﻿using _1.Interfaces;
-using _1.Models;
+using _1.DbModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace _1.Controllers

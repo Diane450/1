@@ -1,4 +1,4 @@
-﻿using _1.Models;
+﻿using _1.DbModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using System.ComponentModel.DataAnnotations;

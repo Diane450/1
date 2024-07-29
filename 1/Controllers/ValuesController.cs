@@ -1,14 +1,14 @@
 ﻿using _1.classes;
 using _1.Helpers;
 using _1.Interfaces;
-using _1.Models;
+using _1.DbModels;
 using BCrypt.Net;
 using System.Net;
 using System.Net.Mail;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
-using Group = _1.Models.Group;
+using Group = _1.DbModels.Group;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -26,21 +26,21 @@ namespace _1.Controllers
             _emailSender = emailSender;
         }
 
-        [HttpPost]
-        public async Task<int> Register([FromBody] AuthBody value)
-        {
-            User user = new User
-            {
-                Email = value.Email,
-                Salt = BCrypt.Net.BCrypt.GenerateSalt()
-            };
-            user.Password = BCrypt.Net.BCrypt.HashPassword(value.Password, user.Salt!);
-            user.Login = value.Login;
-            CurrentUser.login = user.Login;
-            await _dbContext.Users.AddAsync(user);
-            await _dbContext.SaveChangesAsync();
-            return user.IdUser;
-        }
+        //[HttpPost]
+        //public async Task<int> Register([FromBody] AuthBody value)
+        //{
+        //    User user = new User
+        //    {
+        //        Email = value.Email,
+        //        Salt = BCrypt.Net.BCrypt.GenerateSalt()
+        //    };
+        //    user.Password = BCrypt.Net.BCrypt.HashPassword(value.Password, user.Salt!);
+        //    user.Login = value.Login;
+        //    CurrentUser.login = user.Login;
+        //    await _dbContext.Users.AddAsync(user);
+        //    await _dbContext.SaveChangesAsync();
+        //    return user.IdUser;
+        //}
 
         [HttpPost]
         public async Task<bool> CheckLogin([FromBody] string login)
@@ -258,7 +258,7 @@ namespace _1.Controllers
         //}   
 
         [HttpGet]
-        public async Task<List<_1.Models.Department>> GetDepartments()
+        public async Task<List<_1.DbModels.Department>> GetDepartments()
         {
             return await _dbContext.Departments.ToListAsync();
         }

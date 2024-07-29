@@ -1,15 +1,19 @@
 ﻿using _1.Interfaces;
-using _1.Models;
+using _1.DbModels;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using _1.Models;
+using _1.Responses;
+using _1.Requests;
+using Newtonsoft.Json.Linq;
 
 namespace _1.Services
 {
-    public class JwtTokenService: IJwtTokenService
+    public class JwtTokenService : IJwtTokenService
     {
         private readonly IConfiguration _configuration;
 
@@ -18,11 +22,12 @@ namespace _1.Services
             _configuration = configuration;
         }
 
-        public string GenerateToken(User user)
+        public string GenerateAccessToken(User user)
         {
             var claims = new[]
             {
-                new Claim(ClaimTypes.Name, user.Login)
+                new Claim(ClaimTypes.Name, user.Login),
+                new Claim(ClaimTypes.Role, user.UserRole.Role)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
@@ -39,15 +44,42 @@ namespace _1.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public string GenerateRefreshToken()
+        public RefreshToken GenerateRefreshToken()
         {
-            return null;
-            //return new RefreshToken
-            //{
-            //    Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
-            //    Expires = DateTime.UtcNow.AddDays(7),
-            //    Created = DateTime.UtcNow
-            //};
+            return new RefreshToken
+            {
+                Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
+                Expires = DateTime.UtcNow.AddDays(7),
+                Created = DateTime.UtcNow
+            };
+        }
+
+        public async Task<AuthorizationResponse> RefreshAccessToken(RefreshTokenRequest refreshTokenRequest, User user)
+        {
+            if (refreshTokenRequest.Expires < DateTime.Now)
+                throw new Exception("RefreshToken просрочен");
+            else
+            {
+                return new AuthorizationResponse
+                {
+                    RefreshToken = refreshTokenRequest.RefreshToken,
+                    RefreshTokenExpires = refreshTokenRequest.Expires,
+                    AccessToken = GenerateAccessToken(user)
+                };
+            }
+        }
+
+        public AuthorizationResponse GenerateTokens(User user)
+        {
+            var token = GenerateAccessToken(user);
+            var refreshToken = GenerateRefreshToken();
+            return new AuthorizationResponse
+            {
+                AccessToken = token,
+                RefreshToken = refreshToken.Token,
+                RefreshTokenExpires = refreshToken.Expires,
+                UserId = user.IdUser
+            };
         }
     }
 }

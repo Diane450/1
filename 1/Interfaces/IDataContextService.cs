@@ -1,4 +1,4 @@
-﻿using _1.Models;
+﻿using _1.DbModels;
 
 namespace _1.Interfaces
 {
